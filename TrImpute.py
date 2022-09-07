@@ -10,7 +10,7 @@ from os.path import join
 from bearing import calculate_bearing, next_point, haversine, angledist, printProgressBar
 import numpy as np
 from queue import PriorityQueue
-import time
+from time import time
 
 
 def process_input(input_folder):
@@ -54,6 +54,7 @@ def impute_trajectories(trajs):
         printProgressBar(currentTraj, totalTrajs, 'Progress', 'Completed')
         if len(traj) and path.getsize(input_folder + '/' + k) > 0:
             inside_traj = False
+            start_time = time()
             for i, (a, b) in enumerate(zip(traj, traj[1:])):
                 inside_traj = True
 
@@ -182,7 +183,9 @@ def impute_trajectories(trajs):
                 # Add the last point in the sparse trajectory
                 if inside_traj:
                     g.write('%s,%s,%s,%s\n' % (d[0], d[1], d[2], d[3]))
-
+            timeTaken = time() - start_time
+            with open(output_folder+'/results.csv', 'a') as h:
+                h.write("%s,%s,%s,%s\n" % (k, len(traj), len(trimpute_traj), timeTaken))
             currentTraj += 1
 
 
@@ -201,7 +204,7 @@ if __name__ == '__main__':
         print(e)
         exit()
 
-    start_time = time.time()
+    start_time = time()
     print('started')
 
     # Main parameters
@@ -232,4 +235,4 @@ if __name__ == '__main__':
 
     impute_trajectories(trajs)
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print("--- %s seconds ---" % (time() - start_time))
